@@ -1,0 +1,107 @@
+#!/bin/bash
+
+# Función para mostrar el menú
+mostrar_menu() {
+  echo "Selecciona un modo de juego:"
+  echo "1. BEST OF FIVE"
+  echo "2. INFINITE MODE"
+  echo "3. IMPOSSIBLE MODE"
+}
+
+# Función para jugar una ronda
+jugar_ronda() {
+  opciones=("piedra" "papel" "tijera")
+  echo "Escoge entre: piedra, papel o tijera"
+  read -r jugador
+  cpu=${opciones[$RANDOM % 3]}
+
+  echo "La máquina ha elegido: $cpu"
+
+  if [[ $jugador == $cpu ]]; then
+    echo "Habéis empatado"
+    return 0
+  elif [[ ($jugador == "piedra" && $cpu == "tijera") || 
+          ($jugador == "papel" && $cpu == "piedra") || 
+          ($jugador == "tijera" && $cpu == "papel") ]]; then
+    echo "¡Has ganado, enhorabuena mostro!"
+    return 1
+  else
+    echo "¡Pierdes esta ronda, haber estudiao!"
+    return 2
+  fi
+}
+
+# Función para el modo Mejor de 5
+mejor_de_5() {
+  jugador_puntos=0
+  cpu_puntos=0
+
+  while [[ $jugador_puntos -lt 3 && $cpu_puntos -lt 3 ]]; do
+    jugar_ronda
+    resultado=$?
+    if [[ $resultado -eq 1 ]]; then
+      ((jugador_puntos++))
+    elif [[ $resultado -eq 2 ]]; then
+      ((cpu_puntos++))
+    fi
+    echo "Marcador: Jugador $jugador_puntos - CPU $cpu_puntos"
+  done
+
+  if [[ $jugador_puntos -eq 3 ]]; then
+    echo "¡Has ganado la partida, todos a bailar!"
+  else
+    echo "¡Perdiste la partida, a estudiar!"
+  fi
+}
+
+# Función para el modo infinito
+modo_infinito() {
+  while true; do
+    jugar_ronda
+  done
+}
+
+# Función para el modo imposible
+modo_imposible() {
+  while true; do
+    echo "Escoge entre: Piedra, Papel o Tijera"
+    read -r jugador
+    case $jugador in
+      piedra)
+        cpu="papel"
+        ;;
+      papel)
+        cpu="tijera"
+        ;;
+      tijera)
+        cpu="piedra"
+        ;;
+      *)
+        echo "Entrada no válida. Intenta de nuevo."
+        continue
+        ;;
+    esac
+
+    echo "CPU elige: $cpu"
+    echo "¡Pierdes esta ronda, haber estudiao!"
+  done
+}
+
+# Mostrar menú y leer la opción del usuario
+mostrar_menu
+read -r opcion
+
+case $opcion in
+  1)
+    mejor_de_5
+    ;;
+  2)
+    modo_infinito
+    ;;
+  3)
+    modo_imposible
+    ;;
+  *)
+    echo "Opción no válida. Saliendo del juego."
+    ;;
+esac
